@@ -86,14 +86,12 @@ public class AiService {
      * @return AI 分析结果
      */
     public AiAnalysisResult analyze(String keyword, CollectedItem item) {
-        // Use a stable hash so the same keyword + article does not call the model repeatedly.
         String input = keyword + "|" + item.getTitle() + "|" + item.getUrl() + "|" + item.getSummary();
         String hash = sha256(input);
         String cached = getValue("ai:analysis:" + hash);
         if (StringUtils.hasText(cached)) {
             return read(cached, AiAnalysisResult.class);
         }
-        // With DASHSCOPE_API_KEY set, call Bailian. Without a key, use local rules.
         AiAnalysisResult result = StringUtils.hasText(activeApiKey())
                 ? callOpenAiCompatible(keyword, item)
                 : localAnalyze(keyword, item);
@@ -190,7 +188,6 @@ public class AiService {
 
     private AiAnalysisResult callOpenAiCompatible(String keyword, CollectedItem item) {
         try {
-            // Bailian supports the OpenAI chat completions shape.
             String prompt = """
                     你是 AI 热点监控分析器。请只输出 JSON，字段必须包含：
                     isValid(boolean), relevanceScore(0-100), importance(LOW/MEDIUM/HIGH/CRITICAL),
@@ -231,7 +228,6 @@ public class AiService {
     }
 
     private String activeProvider() {
-        // Prefer the new app.ai block, while keeping old OpenRouter config usable.
         if (usePrimaryAiConfig() && StringUtils.hasText(properties.getAi().getProvider())) {
             return properties.getAi().getProvider();
         }
@@ -265,7 +261,6 @@ public class AiService {
     }
 
     private AiAnalysisResult localAnalyze(String keyword, CollectedItem item) {
-        // Local fallback keeps the app usable if no model key is configured or the provider fails.
         String text = (item.getTitle() + " " + item.getSummary()).toLowerCase();
         int score = text.contains(keyword.toLowerCase()) ? 82 : 58;
         if (text.contains("launch") || text.contains("release") || text.contains("funding")) {

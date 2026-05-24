@@ -13,7 +13,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 /**
  * Web MVC 配置。
- * 给 /api 接口注册登录拦截器，除登录接口和 OPTIONS 请求外都要求携带有效 Token。
+ * 注册登录拦截器拦截 /api 接口，通过 excludePathPatterns 放行无需认证的路径。
  */
 public class WebMvcConfig implements WebMvcConfigurer {
     private final AuthService authService;
@@ -23,12 +23,15 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(new HandlerInterceptor() {
             @Override
             public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-                if ("OPTIONS".equalsIgnoreCase(request.getMethod()) || request.getRequestURI().startsWith("/api/auth")) {
-                    return true;
-                }
-                authService.requireToken(request.getHeader("Authorization"));
+                String username = authService.requireToken(request.getHeader("Authorization"));
+                request.setAttribute("username", username);
+                // 缓存 userId 到 request attribute，避免每次查询
+                com.example.hotspot.entity.User user = authService.getUserInfo(username);
+                request.setAttribute("userId", user.getId());
                 return true;
             }
-        }).addPathPatterns("/api/**");
+        })
+                .addPathPatterns("/api/**")
+                .excludePathPatterns("/api/auth/**");
     }
 }

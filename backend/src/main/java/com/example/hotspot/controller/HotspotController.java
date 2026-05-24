@@ -43,7 +43,6 @@ public class HotspotController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int size
     ) {
-        // Frontend hotspot list reads paged data from the MySQL hotspot table.
         return ApiResponse.ok(hotspotService.page(keyword, importance, source, page, size));
     }
 

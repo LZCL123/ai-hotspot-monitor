@@ -28,12 +28,19 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class CollectorOrchestrator {
+    /** 所有已注册的采集器（HackerNews、Bing 等），Spring 自动注入 */
     private final List<HotspotCollector> collectorList;
+    /** 订阅管理服务 */
     private final SubscriptionService subscriptionService;
+    /** 热点数据服务 */
     private final HotspotService hotspotService;
+    /** AI 分析服务 */
     private final AiService aiService;
+    /** 采集日志 Mapper */
     private final CollectorLogMapper collectorLogMapper;
+    /** WebSocket 通知推送 */
     private final HotspotNotifier notifier;
+    /** JSON 序列化工具 */
     private final ObjectMapper objectMapper;
 
     /**
@@ -70,6 +77,7 @@ public class CollectorOrchestrator {
     }
 
     private int collectSubscription(Subscription subscription, HotspotCollector collector) {
+        // 1. 创建采集日志
         CollectorLog logRow = new CollectorLog();
         logRow.setSource(collector.source());
         logRow.setKeyword(subscription.getKeyword());
@@ -77,17 +85,23 @@ public class CollectorOrchestrator {
         logRow.setStartedAt(LocalDateTime.now());
         int created = 0;
         try {
+            // 2. 执行采集 → 得到原始数据
             List<CollectedItem> items = collector.collect(subscription.getKeyword());
             for (CollectedItem item : items) {
+                // 3. 去重：URL 已存在 或 标题相似度过高 → 跳过
                 if (hotspotService.existsByUrl(item.getUrl()) || hotspotService.existsSimilarTitle(subscription.getKeyword(), item.getTitle())) {
                     continue;
                 }
+                // 4. AI 分析：打分、生成摘要、判断事件类型
                 AiAnalysisResult analysis = aiService.analyze(subscription.getKeyword(), item);
+                // 5. 相关性门槛：不达标 → 跳过
                 if (!analysis.isValid() || analysis.getRelevanceScore() < subscription.getMinRelevanceScore()) {
                     continue;
                 }
+                // 6. 组装热点对象 → 入库
                 Hotspot hotspot = toHotspot(subscription.getKeyword(), item, analysis);
                 hotspotService.insert(hotspot);
+                // 7. WebSocket 实时推送
                 notifier.notifyNew(hotspot);
                 created++;
             }

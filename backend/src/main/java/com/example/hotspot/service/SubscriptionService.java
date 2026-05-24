@@ -11,6 +11,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 
+/**
+ * 订阅管理服务。
+ * 提供订阅关键词的增删改查、启用禁用管理，以及创建/更新时自动扩展关键词。
+ */
 @Service
 @RequiredArgsConstructor
 public class SubscriptionService {
@@ -19,14 +23,31 @@ public class SubscriptionService {
     private final AiService aiService;
     private final ObjectMapper objectMapper;
 
+    /**
+     * 获取全部订阅列表
+     *
+     * @return 订阅列表（按创建时间降序）
+     */
     public List<Subscription> list() {
         return mapper.selectList(new LambdaQueryWrapper<Subscription>().orderByDesc(Subscription::getCreatedAt));
     }
 
+    /**
+     * 获取已启用的订阅列表
+     *
+     * @return 已启用的订阅列表
+     */
     public List<Subscription> enabledList() {
         return mapper.selectList(new LambdaQueryWrapper<Subscription>().eq(Subscription::getEnabled, true));
     }
 
+    /**
+     * 创建订阅
+     * 自动扩展关键词并保存到数据库。
+     *
+     * @param request 订阅请求
+     * @return 创建的订阅
+     */
     public Subscription create(SubscriptionRequest request) {
         Subscription entity = new Subscription();
         copy(request, entity);
@@ -36,6 +57,15 @@ public class SubscriptionService {
         return entity;
     }
 
+    /**
+     * 更新订阅
+     * 重新扩展关键词并更新数据库记录。
+     *
+     * @param id      订阅ID
+     * @param request 订阅请求
+     * @return 更新后的订阅
+     * @throws BizException 订阅不存在时抛出
+     */
     public Subscription update(Long id, SubscriptionRequest request) {
         Subscription entity = mapper.selectById(id);
         if (entity == null) {
@@ -47,10 +77,23 @@ public class SubscriptionService {
         return mapper.selectById(id);
     }
 
+    /**
+     * 删除订阅
+     *
+     * @param id 订阅ID
+     */
     public void delete(Long id) {
         mapper.deleteById(id);
     }
 
+    /**
+     * 设置订阅启用/禁用状态
+     *
+     * @param id      订阅ID
+     * @param enabled 启用状态
+     * @return 更新后的订阅
+     * @throws BizException 订阅不存在时抛出
+     */
     public Subscription setEnabled(Long id, boolean enabled) {
         Subscription entity = mapper.selectById(id);
         if (entity == null) {

@@ -20,6 +20,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+/**
+ * 采集编排服务。
+ * 管理所有数据源的采集流程：遍历已启用的订阅，执行采集、AI 分析、去重、入库和 WebSocket 推送。
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -32,6 +36,12 @@ public class CollectorOrchestrator {
     private final HotspotNotifier notifier;
     private final ObjectMapper objectMapper;
 
+    /**
+     * 刷新所有订阅
+     * 遍历全部启用的订阅，分别对其配置的数据源执行采集和分析流程。
+     *
+     * @return 本次新增的热点总数
+     */
     public int refreshAll() {
         int created = 0;
         Map<String, HotspotCollector> collectors = collectorList.stream()
@@ -47,6 +57,9 @@ public class CollectorOrchestrator {
         return created;
     }
 
+    /**
+     * 定时调度刷新
+     */
     @Scheduled(fixedDelayString = "${COLLECTOR_FIXED_DELAY_MS:300000}")
     public void scheduledRefresh() {
         try {

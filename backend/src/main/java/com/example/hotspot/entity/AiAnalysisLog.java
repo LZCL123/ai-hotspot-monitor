@@ -6,6 +6,10 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.time.LocalDateTime;
 import lombok.Data;
 
+/**
+ * AI 分析日志实体。
+ * 记录每次 AI 分析操作的提供商、模型、输入哈希和输出结果。
+ */
 @Data
 @TableName("ai_analysis_log")
 public class AiAnalysisLog {

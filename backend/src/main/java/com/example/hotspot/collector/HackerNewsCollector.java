@@ -30,11 +30,23 @@ public class HackerNewsCollector implements HotspotCollector {
     private final AppProperties properties;
     private final ObjectMapper objectMapper;
 
+    /**
+     * 获取数据源标识
+     *
+     * @return 数据源名称
+     */
     @Override
     public String source() {
         return "hackernews";
     }
 
+    /**
+     * 执行采集
+     * 通过 Algolia HackerNews 搜索 API 拉取故事数据，最多重试配置次数。
+     *
+     * @param keyword 搜索关键词
+     * @return 采集到的热点条目列表
+     */
     @Override
     public List<CollectedItem> collect(String keyword) {
         String encoded = URLEncoder.encode(keyword, StandardCharsets.UTF_8);

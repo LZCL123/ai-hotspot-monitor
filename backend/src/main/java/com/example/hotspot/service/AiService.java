@@ -30,6 +30,10 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+/**
+ * AI 服务层。
+ * 封装与 AI 模型的交互逻辑，包括关键词扩展、热点分析、智能问答、缓存管理和本地规则降级。
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -46,6 +50,13 @@ public class AiService {
     private final Map<String, String> localCache = new ConcurrentHashMap<>();
     private final Map<String, Long> localExpiry = new ConcurrentHashMap<>();
 
+    /**
+     * 扩展关键词
+     * 根据用户输入的关键词生成一组预设的扩展关键词，结果会缓存 24 小时。
+     *
+     * @param keyword 用户输入的关键词
+     * @return 扩展后的关键词列表
+     */
     public List<String> expandKeywords(String keyword) {
         String cacheKey = "ai:expand:" + keyword.toLowerCase();
         String cached = getValue(cacheKey);
@@ -65,6 +76,15 @@ public class AiService {
         return expanded;
     }
 
+    /**
+     * 分析热点
+     * 对关键词和采集项进行 AI 分析（调用模型或本地规则降级），
+     * 结果按输入哈希缓存 7 天，同时记录分析日志。
+     *
+     * @param keyword 订阅关键词
+     * @param item    采集的热点条目
+     * @return AI 分析结果
+     */
     public AiAnalysisResult analyze(String keyword, CollectedItem item) {
         // Use a stable hash so the same keyword + article does not call the model repeatedly.
         String input = keyword + "|" + item.getTitle() + "|" + item.getUrl() + "|" + item.getSummary();
@@ -93,6 +113,14 @@ public class AiService {
         return result;
     }
 
+    /**
+     * 基于参考热点回答用户问题
+     * 优先调用 AI 模型生成回答，失败时降级到本地规则回答。
+     *
+     * @param question   用户问题
+     * @param references 相关热点引用列表
+     * @return AI 回答内容
+     */
     public String answerWithReferences(String question, List<AgentReference> references) {
         if (!StringUtils.hasText(activeApiKey())) {
             return localAgentAnswer(question, references);

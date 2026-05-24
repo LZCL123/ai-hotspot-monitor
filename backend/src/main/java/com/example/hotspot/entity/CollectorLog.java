@@ -6,6 +6,10 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.time.LocalDateTime;
 import lombok.Data;
 
+/**
+ * 采集日志实体。
+ * 记录每次订阅关键词采集的执行状态、来源、耗时和结果消息。
+ */
 @Data
 @TableName("collector_log")
 public class CollectorLog {

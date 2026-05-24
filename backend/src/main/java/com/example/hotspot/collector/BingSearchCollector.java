@@ -20,11 +20,23 @@ import org.springframework.stereotype.Component;
 public class BingSearchCollector implements HotspotCollector {
     private final AppProperties properties;
 
+    /**
+     * 获取数据源标识
+     *
+     * @return 数据源名称
+     */
     @Override
     public String source() {
         return "bing";
     }
 
+    /**
+     * 执行采集
+     * 根据关键词从 Bing 搜索结果页抓取候选热点，最多重试配置次数。
+     *
+     * @param keyword 搜索关键词
+     * @return 采集到的热点条目列表
+     */
     @Override
     public List<CollectedItem> collect(String keyword) {
         String url = "https://www.bing.com/search?q=" + URLEncoder.encode(keyword + " AI", StandardCharsets.UTF_8);

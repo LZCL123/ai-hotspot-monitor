@@ -14,6 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+/**
+ * 登录认证服务。
+ * 提供管理员账号密码校验、Token 生成和 Token 验证功能，支持 Redis 和本地内存两种存储方式。
+ */
 @Service
 @Slf4j
 public class AuthService {
@@ -32,6 +36,14 @@ public class AuthService {
         this.properties = properties;
     }
 
+    /**
+     * 用户登录
+     * 校验用户名密码后生成 Token，有效期 12 小时。
+     *
+     * @param request 登录请求
+     * @return 登录响应（Token、用户名、角色）
+     * @throws BizException 用户名或密码错误时抛出
+     */
     public LoginResponse login(LoginRequest request) {
         if (!properties.getAuth().getUsername().equals(request.getUsername())
                 || !properties.getAuth().getPassword().equals(request.getPassword())) {
@@ -49,6 +61,14 @@ public class AuthService {
         return new LoginResponse(token, request.getUsername(), "ADMIN");
     }
 
+    /**
+     * 验证 Token
+     * 从 Authorization 头中提取 Bearer Token 并验证有效性。
+     *
+     * @param authorization HTTP Authorization 请求头
+     * @return 用户名
+     * @throws BizException 未登录或 Token 过期时抛出
+     */
     public String requireToken(String authorization) {
         if (authorization == null || !authorization.startsWith("Bearer ")) {
             throw new BizException(401, "请先登录");

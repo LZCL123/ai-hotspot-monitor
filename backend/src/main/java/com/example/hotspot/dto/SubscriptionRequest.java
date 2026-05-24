@@ -6,6 +6,9 @@ import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 import lombok.Data;
 
+/**
+ * 订阅请求体。
+ */
 @Data
 public class SubscriptionRequest {
     @NotBlank

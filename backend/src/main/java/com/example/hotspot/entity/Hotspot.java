@@ -6,6 +6,10 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.time.LocalDateTime;
 import lombok.Data;
 
+/**
+ * 热点实体。
+ * 映射经过采集、AI 分析后入库的热点数据，包含来源、关键词、相关性评分和重要性等级。
+ */
 @Data
 @TableName("hotspot")
 public class Hotspot {

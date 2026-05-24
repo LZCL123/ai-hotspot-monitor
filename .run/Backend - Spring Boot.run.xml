@@ -1,0 +1,20 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Backend - Spring Boot" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <envs>
+      <env name="APP_PASSWORD" value="admin123" />
+      <env name="APP_USERNAME" value="admin" />
+      <env name="BAILIAN_BASE_URL" value="https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions" />
+      <env name="BAILIAN_MODEL" value="qwen-plus" />
+      <env name="MYSQL_PASSWORD" value="hotspot" />
+      <env name="MYSQL_URL" value="jdbc:mysql://localhost:3306/ai_hotspot?useUnicode=true&amp;characterEncoding=utf8&amp;serverTimezone=Asia/Shanghai&amp;allowPublicKeyRetrieval=true&amp;useSSL=false" />
+      <env name="MYSQL_USER" value="hotspot" />
+      <env name="REDIS_HOST" value="localhost" />
+      <env name="REDIS_PORT" value="6379" />
+    </envs>
+    <module name="ai-hotspot-monitor" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.hotspot.HotspotApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

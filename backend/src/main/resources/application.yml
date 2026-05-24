@@ -1,0 +1,51 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: ai-hotspot-monitor
+  datasource:
+    url: ${MYSQL_URL:jdbc:mysql://localhost:3306/ai_hotspot?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false}
+    username: ${MYSQL_USER:hotspot}
+    password: ${MYSQL_PASSWORD:hotspot}
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 3s
+  sql:
+    init:
+      mode: ${SQL_INIT_MODE:always}
+      schema-locations: classpath:schema.sql
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      id-type: auto
+
+app:
+  auth:
+    username: ${APP_USERNAME:admin}
+    password: ${APP_PASSWORD:admin123}
+  ai:
+    provider: ${AI_PROVIDER:bailian}
+    api-key: ${DASHSCOPE_API_KEY:${BAILIAN_API_KEY:}}
+    model: ${BAILIAN_MODEL:qwen-plus}
+    base-url: ${BAILIAN_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions}
+  openrouter:
+    api-key: ${OPENROUTER_API_KEY:}
+    model: ${OPENROUTER_MODEL:openai/gpt-4o-mini}
+    base-url: ${OPENROUTER_BASE_URL:https://openrouter.ai/api/v1/chat/completions}
+  collector:
+    default-interval-minutes: ${COLLECTOR_INTERVAL_MINUTES:30}
+    timeout-seconds: ${COLLECTOR_TIMEOUT_SECONDS:8}
+    max-retries: ${COLLECTOR_MAX_RETRIES:2}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173}
+
+logging:
+  level:
+    com.example.hotspot: INFO

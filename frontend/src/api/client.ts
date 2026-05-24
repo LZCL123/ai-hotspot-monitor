@@ -10,6 +10,18 @@ export interface ApiResponse<T> {
   data: T
 }
 
+function isApiResponse(value: unknown): value is ApiResponse<unknown> {
+  return Boolean(value && typeof value === 'object' && 'code' in value)
+}
+
+function isSuccessCode(code: number) {
+  return code === 0 || code === 200
+}
+
+function shouldRedirectToLogin(url?: string) {
+  return !url?.startsWith('/auth/login') && !url?.startsWith('/auth/register')
+}
+
 export const http = axios.create({
   // 本地开发时 Vite 会把 /api 代理到 8080 端口的 Spring Boot 后端。
   // Docker 部署时 nginx 也会把同样的 /api 路径转发到后端容器。
@@ -28,11 +40,14 @@ http.interceptors.request.use((config) => {
 
 http.interceptors.response.use(
   (response) => {
+    if (!isApiResponse(response.data)) {
+      return response
+    }
     const body = response.data as ApiResponse<unknown>
     body.message = toSimplified(body.message || '')
     body.data = simplifyApiData(body.data)
-    if (body.code !== 0) {
-      if (body.code === 401) {
+    if (!isSuccessCode(body.code)) {
+      if (body.code === 401 && shouldRedirectToLogin(response.config.url)) {
         const auth = useAuthStore()
         auth.logout()
         window.location.href = '/login'
@@ -43,7 +58,10 @@ http.interceptors.response.use(
     return response
   },
   (error) => {
-    if (error.response?.status === 401 || error.response?.data?.code === 401) {
+    if (
+      (error.response?.status === 401 || error.response?.data?.code === 401) &&
+      shouldRedirectToLogin(error.config?.url)
+    ) {
       const auth = useAuthStore()
       auth.logout()
       window.location.href = '/login'

@@ -12,6 +12,7 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/login', component: LoginView },
+    { path: '/register', component: LoginView },
     { path: '/', component: DashboardView },
     { path: '/subscriptions', component: SubscriptionsView },
     { path: '/hotspots', component: HotspotsView },
@@ -23,7 +24,11 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   const auth = useAuthStore()
-  if (to.path !== '/login' && !auth.token) {
+  const publicPages = ['/login', '/register']
+  if (publicPages.includes(to.path) && auth.token) {
+    return '/'
+  }
+  if (!publicPages.includes(to.path) && !auth.token) {
     return '/login'
   }
 })

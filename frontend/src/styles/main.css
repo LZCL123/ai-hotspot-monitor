@@ -112,6 +112,11 @@ body {
   gap: 12px;
 }
 
+.user-name {
+  color: var(--muted);
+  font-size: 14px;
+}
+
 .content {
   padding: 28px 30px 44px;
 }
@@ -256,8 +261,16 @@ body {
   display: grid;
 }
 
+.login-form .el-segmented {
+  margin-bottom: 18px;
+}
+
 .login-form .el-button {
   width: 100%;
+}
+
+.password-form {
+  display: grid;
 }
 
 .detail-layout {
@@ -411,6 +424,7 @@ body {
   }
 
   .topbar,
+  .topbar-actions,
   .panel-header,
   .filter-row {
     align-items: stretch;

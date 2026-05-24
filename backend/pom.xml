@@ -20,6 +20,7 @@
         <java.version>17</java.version>
         <mybatis-plus.version>3.5.9</mybatis-plus.version>
         <fastjson2>2.0.32</fastjson2>
+        <hutool-http>5.8.30</hutool-http>
     </properties>
 
     <dependencies>
@@ -83,7 +84,7 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-http</artifactId>
-            <version>2.0.0</version>
+            <version>${hutool-http}</version>
         </dependency>
     </dependencies>
 
